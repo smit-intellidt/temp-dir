@@ -12,7 +12,7 @@ return [
     */
 
     'binaries' => [
-        'ffmpeg'  => public_path("ffmpeg/bin/ffmpeg.exe"),
-        'ffprobe' => public_path("ffmpeg/bin/ffprobe.exe")
+        'ffmpeg'  => env('FFMPEG', '/usr/bin/ffmpeg'),
+        'ffprobe' => env('FFPROBE', '/usr/bin/ffprobe')
     ]
 ];

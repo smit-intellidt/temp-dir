@@ -44,7 +44,12 @@ return [
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
+            'hash' => false,
         ],
+        'backend-api' => [
+            'driver' => 'jwt',
+            'provider' => 'backend_users'
+        ]
     ],
 
     /*
@@ -67,8 +72,12 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => App\User::class,
         ],
+        'backend_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\BackendUser::class
+        ]
 
         // 'users' => [
         //     'driver' => 'database',

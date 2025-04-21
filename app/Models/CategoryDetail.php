@@ -10,12 +10,23 @@ class CategoryDetail extends Model
 {
     use SoftDeletes;
 
-    /**
-     * Get parent category data.
-     */
 
-    function parentCategoryDetail()
+    function parentId()
     {
-        return $this->hasOne('App\Models\CategoryDetail', 'id', 'parentId');
+        return $this->hasOne('App\Models\CategoryDetail', 'parent_id', 'id');
+    }
+    
+     function catParentId()
+    {
+        return $this->belongsTo('App\Models\CategoryDetail', 'parent_id');
+    }
+    
+    public function setParentIdAttribute($value){
+        $this->attributes['parent_id'] = is_null($value) ? 0 : $value;
+    }
+    
+    public function scopeParent($query)
+    {
+        return $query->where('parent_id',0);
     }
 }

@@ -1,12 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\ArticleController;
-use App\Http\Controllers\Api\BusinessController;
-use App\Http\Controllers\Api\CommonController;
-use App\Http\Controllers\Api\CouponController;
-use App\Http\Controllers\Api\CronController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\DinningController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,60 +13,76 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
- */
+*/
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::group(['middleware' => 'APIToken'], function () {
-    Route::post('category-list', [ArticleController::class, 'getCategoryData']);
-    Route::post('get-featured-article', [ArticleController::class, 'getFeaturedArticles']);
-    Route::post('categorywise-article', [ArticleController::class, 'getCategoryWiseArticleData']);
-    Route::get('article-by-id/{article_id}', [ArticleController::class, 'getArticleByID']);
-    Route::post('register-stepup', [ArticleController::class, 'registerStepUp']);
-    Route::post('update-avatar', [ArticleController::class, 'updateAvatar']);
-    Route::post('verify-code', [ArticleController::class, 'verifyVerificationCode']);
-    Route::post('resend-verification-code', [ArticleController::class, 'ResendVerificationCode']);
-    Route::post('update-user-location', [ArticleController::class, 'updateUserLocation']);
-    Route::post('update-device-token', [ArticleController::class, 'updateDeviceToken']);
-    Route::post('update-location-detection', [ArticleController::class, 'updateLocationDetection']);
-    Route::post('update-notification-alert', [ArticleController::class, 'updateNotificationSoundSetting']);
-    Route::post('update-category-notification-setting', [ArticleController::class, 'updateCategoryNotificationSetting']);
-    Route::post('update-bookmark-status', [ArticleController::class, 'updateUserArticleBookmark']);
-    Route::post('update-article-read-status', [ArticleController::class, 'markArticleAsRead']);
-    Route::post('get-article-bookmark-status', [ArticleController::class, 'getUserArticleBookmark']);
-    Route::post('search-data', [ArticleController::class, 'searchData']);
-    Route::post('search-all-data', [ArticleController::class, 'searchAllData']);
-    Route::post('get-videos', [ArticleController::class, 'getVideoData']);
-    Route::post('video-by-id', [ArticleController::class, 'getVideoByID']);
-    Route::post('latest-videos', [ArticleController::class, 'getLatestVideos']);
-    Route::post('business-list', [BusinessController::class, 'getBusinessCategoryData']);
-    Route::post('search-list', [BusinessController::class, 'getBusinessList']);
-    Route::post('business-by-id', [ArticleController::class, 'getBusinessDetail']);
-    Route::post('event-list', [BusinessController::class, 'getEventList']);
-    Route::post('event-list-by-date', [BusinessController::class, 'getEventListFromDate']);
-    Route::post('event-by-id', [ArticleController::class, 'getEventDetail']);
-    Route::post('update-steps', [CommonController::class, 'updateUserSteps']);
-    Route::post('steps-leaderboard', [CommonController::class, 'stepsLeaderboards']);
-    Route::post('steps-statistics', [CommonController::class, 'getStatistics']);
+
+// Public routes
+Route::post('login', [DinningController::class, 'login']);
+Route::post('general-form-submit', [DinningController::class, 'saveForm']); // stage 0 , old pdf ui
+Route::post('general-form-submit-phase1', [DinningController::class, 'saveFormPhase1']); // new pdf with images stage 1
+Route::post('backend/ios/login', [DinningController::class, 'iosFormLogin']);
+
+// Protected routes with API token
+Route::middleware('APIToken')->group(function () {
+    Route::get('rooms-list', [DinningController::class, 'getRoomList']);
+    Route::post('order-list', [DinningController::class, 'getOrderList']);
+    Route::post('item-list', [DinningController::class, 'getItemList']);
+    Route::post('update-order', [DinningController::class, 'updateOrder']);
+    Route::post('demo-get-report-data', [DinningController::class, 'getCategoryWiseData']);
+    Route::post('demo-get-room-data', [DinningController::class, 'getRoomData']);
+    Route::post('get-user-data', [DinningController::class, 'getUserData']);
+    Route::post('print-order-data', [DinningController::class, 'printOrderData']);
+    // Route::post('general-form-submit', [DinningController::class, 'saveForm']);
+    Route::post('send-email', [DinningController::class, 'sendEmail']);
+    Route::post('form-details', [DinningController::class, 'getFormDetails']);
+    Route::post('edit-form', [DinningController::class, 'editGeneratedFormResponse']); // old working api stage 0
+    Route::post('list-forms', [DinningController::class, 'getGeneratedForms']);
+    Route::post('delete-form', [DinningController::class, 'deleteFormResponse']);
+    Route::post('complete-log', [DinningController::class, 'completeFormLog']);
+    // Route::post('get-report-data', [DinningController::class, 'getCategoryWiseDataDemo']);
+    Route::post('demo-order-list', [DinningController::class, 'getDemoOrderList']);
+    Route::post('demo-form-submit', [DinningController::class, 'saveForm1']);
+    Route::post('delete-form-attachment', [DinningController::class, 'deleteFormAttachment']);
+    Route::post('add-form-attachment', [DinningController::class, 'addAttachmentsToExistingForm']); 
+    Route::post('guest-order-list', [DinningController::class, 'getGuestOrderList']);
+    
+    // Phase 1 endpoints
+    Route::post('edit-form-phase1', [DinningController::class, 'editGeneratedFormResponsePhase1']);
+    Route::post('add-form-attachment-phase1', [DinningController::class, 'addAttachmentsToExistingFormPhase1']);
+    Route::post('delete-form-attachment-phase1', [DinningController::class, 'deleteFormAttachmentPhase1']);
 });
 
-Route::post('update-auth-token', [ArticleController::class, 'updateAuthorisedToken']);
-Route::post('update-author-data', [CronController::class, 'getAuthorData']);
-Route::post('update-footer-content', [CronController::class, 'updateFooterContent']);
-//Route::post('update-article-data', [CronController::class, 'getArticleData']);
-//Route::post('update-canada-press-article-data', [CronController::class, 'updateCPArticleData']);
+// Backend API authenticated routes
+Route::middleware('auth:backend-api')->group(function () {
+    Route::post('temp-send-email', [DinningController::class, 'tempSendMail']);
+    Route::post('temp-form-response-list', [DinningController::class, 'getTempFormResponseList']);
+    Route::get('get-temp-form-list', [DinningController::class, 'getTempFormTypesList']);
+    Route::post('temp-form-save', [DinningController::class, 'saveTempForm']);
+    Route::get('demo-form-fields-by-id/{id}', [DinningController::class, 'getDynamicFormDemoDataById']);
+    Route::get('temp-get-user-data', [DinningController::class, 'getTempUserData']);
+    Route::get('{id}/temp-form-response-delete', [DinningController::class, 'deleteTempFormResponse']);
 
-Route::post('set-user-data', [ArticleController::class, 'setUserData']);
-Route::get('get-category-image/{category_id}', [ArticleController::class, 'getImageOfCategory']);
-Route::post('get-full-image-name', [ArticleController::class, 'getArticleImage']);
-Route::post('get-footer-content', [CommonController::class, 'getFooterContent']);
-Route::post('update-coupon-data', [CronController::class, 'updateCouponData']);
-Route::post('get-coupon-list-by-category', [CouponController::class, 'getCouponListByCategory']);
-Route::get('get-coupon-by-id/{coupon_id}', [CouponController::class, 'getCouponById']);
-Route::post('send-notification', [ArticleController::class, 'sendNotification']);
-Route::post('send-notification-android', [ArticleController::class, 'sendNotificationAndroid']);
-//Route::post('update-video-data', [CronController::class, 'updateVideoData']);
-Route::post('update-advertisement-data', [CronController::class, 'updateAdvertisementData']);
-Route::post('update-admin-login-data', [CronController::class, 'updateAdminLoginData']);
-Route::get('update-article-caption', [CronController::class, 'updateArticleCaptionCreditData']);
+    // Website routes
+    Route::post('temp-form-save-by-user', [DinningController::class, 'saveTempFormByUser']);
+    Route::get('temp-form-type/{id}/delete', [DinningController::class, 'deleteTempFormType']);
+    Route::get('temp-form-type-list', [DinningController::class, 'tempFormTypeList']);
+    Route::get('{id}/temp-form-type-by-id', [DinningController::class, 'tempFormTypeById']);
+    
+    Route::post('edit-temp-form', [DinningController::class, 'editGeneratedTempFormResponse']);
+    
+    Route::post('delete-temp-form-attachment', [DinningController::class, 'deleteTempFormAttachment']);
+    Route::post('add-temp-form-attachment', [DinningController::class, 'addAttachmentsToExistingTempForm']);
+});
+
+// Additional public routes
+Route::post('get-report-data', [DinningController::class, 'getCategoryWiseDataDemo']);
+Route::post('get-charges-report', [DinningController::class, 'reportData']);
+Route::post('temp-form-details', [DinningController::class, 'getTempFormDetails']);
+Route::get('temp-form-template-download', [DinningController::class, 'getTempFormDownload']);
+Route::post('save-temp-form-pdf', [DinningController::class, 'saveFormTempPdf']);
+Route::post('print-combined-order-data', [DinningController::class, 'printOrderDataTemp']);
+Route::post('temp-get-charges-report', [DinningController::class, 'reportDataTemp2']);
+Route::post('multi-order-update', [DinningController::class, 'updateOrderBulk']);
